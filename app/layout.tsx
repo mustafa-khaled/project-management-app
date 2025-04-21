@@ -10,7 +10,7 @@ const fontSans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Trello",
+  title: "Prello",
   description: "Project Management App",
 };
 
