@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,11 +13,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { OAuthSignIn } from "@/components/auth/OAuthSignIn";
+import { useForm } from "react-hook-form";
 
 export function CreateAccountForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    getValues,
+  } = useForm();
+
+  const onSubmit = () => {};
+
   return (
     <Card className="w-96">
-      <form>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Create an account</CardTitle>
           <CardDescription className="text-xs">
