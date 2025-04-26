@@ -14,17 +14,22 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { OAuthSignIn } from "@/components/auth/OAuthSignIn";
 import { useForm } from "react-hook-form";
+import { Icons } from "@/components/Icons";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signupSchema, TSignupSchema } from "@/lib/types";
 
 export function CreateAccountForm() {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
-    getValues,
-  } = useForm();
+  } = useForm<TSignupSchema>({
+    resolver: zodResolver(signupSchema),
+  });
 
-  const onSubmit = () => {};
+  const onSubmit = (data: TSignupSchema) => {
+    console.log("onSubmit", data);
+  };
 
   return (
     <Card className="w-96">
@@ -46,24 +51,51 @@ export function CreateAccountForm() {
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
+              {...register("email")}
               id="email"
               type="email"
               placeholder="m@example.com"
-              required
+              disabled={isSubmitting}
             />
+            {errors?.email && (
+              <p className="text-red-500 text-sm">{errors?.email?.message}</p>
+            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" required />
+            <Input
+              {...register("password")}
+              id="password"
+              type="password"
+              disabled={isSubmitting}
+            />
+            {errors?.password && (
+              <p className="text-red-500 text-sm">
+                {errors?.password?.message}
+              </p>
+            )}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input id="confirmPassword" type="password" required />
+            <Input
+              {...register("confirmPassword")}
+              id="confirmPassword"
+              type="password"
+              disabled={isSubmitting}
+            />
+            {errors?.confirmPassword && (
+              <p className="text-red-500 text-sm">
+                {errors?.confirmPassword?.message}
+              </p>
+            )}
           </div>
 
-          <Button className="w-full" type="submit">
-            {/* <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> */}
-            Create account
+          <Button className="w-full" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              "Create account"
+            )}
           </Button>
         </CardContent>
         <CardFooter>
