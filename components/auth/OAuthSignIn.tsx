@@ -18,7 +18,7 @@ function OAuthButtons() {
   );
 }
 
-export function OAuthSignIn(props) {
+export function OAuthSignIn() {
   return (
     <div className="w-full">
       <div className="relative mb-4">
@@ -46,7 +46,7 @@ export function OAuthSignIn(props) {
           </div>
         }
       >
-        <OAuthButtons {...props} />
+        <OAuthButtons />
       </Suspense>
     </div>
   );

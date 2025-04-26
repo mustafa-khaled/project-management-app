@@ -1,10 +1,20 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 
 export default function AppScreenshot() {
   const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure that the component is mounted before using the theme
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Avoid rendering if the component is not mounted yet (to prevent hydration mismatch)
+  if (!mounted) return null;
 
   return (
     <div className="relative w-full max-w-[1200px] mx-auto mt-20">
