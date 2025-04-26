@@ -59,7 +59,6 @@ export async function updateSession(request: NextRequest) {
   });
 
   if (!session && !isPublicPath) {
-    // no user, redirect to login page with current path as next
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", currentPath);
@@ -70,7 +69,6 @@ export async function updateSession(request: NextRequest) {
     session &&
     (currentPath === "/login" || currentPath === "/create-account")
   ) {
-    // For logged in users trying to access auth pages, redirect to the next path
     const url = new URL(nextPath, request.url);
     return NextResponse.redirect(url);
   }

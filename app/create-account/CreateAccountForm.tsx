@@ -17,8 +17,14 @@ import { useForm } from "react-hook-form";
 import { Icons } from "@/components/Icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, TSignupSchema } from "@/lib/types";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import { signupAction } from "@/actions/auth";
 
 export function CreateAccountForm() {
+  const router = useRouter();
+  const { toast } = useToast();
+
   const {
     register,
     handleSubmit,
@@ -27,8 +33,22 @@ export function CreateAccountForm() {
     resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = (data: TSignupSchema) => {
-    console.log("onSubmit", data);
+  const onSubmit = async (data: TSignupSchema) => {
+    const result = await signupAction(data);
+
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: "Please check your email to verify your account.",
+      });
+      router.push("/login");
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Account Creation Error",
+        description: result.error || "Something went wrong",
+      });
+    }
   };
 
   return (
