@@ -19,7 +19,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, TSignupSchema } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import { signupAction } from "@/actions/auth";
+import { auth } from "@/utils/auth";
+import { getAuthError } from "@/utils/auth-errors";
 
 export function CreateAccountForm() {
   const router = useRouter();
@@ -34,19 +35,20 @@ export function CreateAccountForm() {
   });
 
   const onSubmit = async (data: TSignupSchema) => {
-    const result = await signupAction(data);
-
-    if (result.success) {
+    try {
+      await auth.signUp(data.email, data.password);
       toast({
         title: "Success",
         description: "Please check your email to verify your account.",
       });
       router.push("/login");
-    } else {
+    } catch (error) {
+      const { message } = getAuthError(error);
+
       toast({
         variant: "destructive",
         title: "Account Creation Error",
-        description: result.error || "Something went wrong",
+        description: message,
       });
     }
   };

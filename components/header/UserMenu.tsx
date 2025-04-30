@@ -1,4 +1,4 @@
-import { CreditCard, LogOut, Plus, User as UserIcon } from "lucide-react";
+import { CircleUser, CreditCard, Plus, User as UserIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,14 +10,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import Image from "next/image";
+import SignOut from "./SignOut";
 
 interface UserMenuProps {
   user: any;
 }
 
 export function UserMenu({ user }: UserMenuProps) {
-  const handleSignOut = async () => {};
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -26,6 +26,17 @@ export function UserMenu({ user }: UserMenuProps) {
           size="icon"
           className="relative h-9 w-9 rounded-full border bg-background"
         >
+          {user.user_metadata.avatar_url ? (
+            <Image
+              src={user.user_metadata.avatar_url}
+              alt={user.user_metadata.full_name || user.email || ""}
+              fill
+              className="rounded-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <CircleUser className="h-5 w-5" />
+          )}
           <span className="sr-only">Open user menu</span>
         </Button>
       </DropdownMenuTrigger>
@@ -70,13 +81,7 @@ export function UserMenu({ user }: UserMenuProps) {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          className="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
-          onSelect={handleSignOut}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Sign out</span>
-        </DropdownMenuItem>
+        <SignOut />
       </DropdownMenuContent>
     </DropdownMenu>
   );

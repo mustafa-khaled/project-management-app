@@ -12,7 +12,32 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { OAuthSignIn } from "@/components/auth/OAuthSignIn";
 
+// import { auth } from "@/utils/auth";
+// import { useToast } from "@/components/ui/use-toast";
+import { getAuthError } from "@/utils/auth-errors";
+// import { useRouter } from "next/navigation";
+
 export function LoginForm() {
+  // const router = useRouter();
+  // const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // await auth.signIn(email, password);
+      // router.push("/projects");
+      // router.refresh();
+    } catch (error) {
+      const { message } = getAuthError(error);
+      // toast({
+      //   variant: "destructive",
+      //   title: "Authentication Error",
+      //   description: message,
+      //   duration: 5000,
+      // });
+    }
+  };
+
   return (
     <Card className="w-96">
       <form>

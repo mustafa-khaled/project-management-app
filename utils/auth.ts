@@ -1,51 +1,79 @@
-import { createClient } from "./supabase/server";
+import { createClient } from "./supabase/client";
 import { users } from "./users";
 
-export const auth = {
-  async signup(email: string, password: string) {
-    const supabase = await createClient();
+const supabase = createClient();
 
-    // 1): Check if the user already exist
-    const { data: existingUser, error } = await supabase
+export const auth = {
+  async signUp(email: string, password: string) {
+    // Step 1: Check if email already exists in users table
+    const { data: existingUser, error: checkError } = await supabase
       .from("users")
       .select("id")
       .eq("email", email)
-      .maybeSingle();
-
-    if (error) {
-      throw error;
-    }
+      .single();
 
     if (existingUser) {
       throw new Error(
-        "This email is already registered, Try signing in instead."
+        "This email is already registered. Try signing in instead."
       );
     }
 
-    const { data, error: signupError } = await supabase.auth.signUp({
+    if (checkError && checkError.code !== "PGRST116") {
+      // PGRST116 means no rows returned
+      throw checkError;
+    }
+
+    // Step 2: Try to sign up the user
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+        emailRedirectTo: `${location.origin}/auth/callback`,
       },
     });
 
-    if (signupError || !data.user) {
+    // If signup fails
+    if (signUpError) {
+      throw signUpError;
+    }
+
+    // If no user data, something went wrong
+    if (!data.user) {
       throw new Error("Failed to create user account");
     }
 
-    try {
-      await users.captureUserDetails(data.user);
-      return { success: true, user: data.user };
-    } catch (profileError) {
-      await supabase.auth.admin.deleteUser(data.user.id);
-      throw profileError;
+    // Step 3: Only proceed with profile creation for new signups
+    if (data.user.identities?.length === 0) {
+      try {
+        await users.captureUserDetails(data.user);
+      } catch (profileError) {
+        // If profile creation fails, clean up the auth user
+        await supabase.auth.admin.deleteUser(data.user.id);
+        throw profileError;
+      }
     }
+
+    return data;
+  },
+
+  async signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+
+    if (data.user) {
+      await users.captureUserDetails(data.user);
+    }
+
+    return data;
+  },
+
+  signupWithOAuth: async () => {},
+
+  async signOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw { message: error.message, status: error.status };
   },
 };
-
-// login: async () => {},
-
-// signupWithOAuth: async () => {},
-
-// logout: async () => {},

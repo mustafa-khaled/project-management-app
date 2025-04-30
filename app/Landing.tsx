@@ -1,5 +1,8 @@
+'use client'
+
 import AppScreenshot from "@/components/AppScreenshot";
 import { Button } from "@/components/ui/button";
+import { useSupabaseSession } from "@/hooks/useSupabaseSession";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
@@ -11,7 +14,9 @@ const features = [
 ];
 
 const LandingPage: React.FC = () => {
-  const user = false;
+  const { user, isLoading } = useSupabaseSession();
+
+  if (isLoading) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/95">
