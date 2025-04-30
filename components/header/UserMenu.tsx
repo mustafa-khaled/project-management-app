@@ -1,11 +1,4 @@
-"use client";
-import {
-  CircleUser,
-  CreditCard,
-  LogOut,
-  Plus,
-  User as UserIcon,
-} from "lucide-react";
+import { CreditCard, LogOut, Plus, User as UserIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 interface UserMenuProps {
   user: any;
@@ -41,10 +34,10 @@ export function UserMenu({ user }: UserMenuProps) {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              user.user_metadata.full_name || user.email
+              {user.user_metadata.full_name || user.email}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              user.email
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
