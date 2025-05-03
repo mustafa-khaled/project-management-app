@@ -5,14 +5,12 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { OAuthSignIn } from "@/components/auth/OAuthSignIn";
 import { useForm } from "react-hook-form";
 import { Icons } from "@/components/Icons";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -120,9 +118,6 @@ export function CreateAccountForm() {
             )}
           </Button>
         </CardContent>
-        <CardFooter>
-          <OAuthSignIn />
-        </CardFooter>
       </form>
     </Card>
   );

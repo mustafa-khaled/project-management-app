@@ -1,14 +1,14 @@
-import React, { FC, memo } from 'react';
+import { FC, memo } from "react";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from '@/components/ui/hover-card';
-import { UserAvatar } from './Avatar';
-import Link from 'next/link';
-import { Separator } from './ui/separator';
-import { Link as LinkIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/hover-card";
+import { UserAvatar } from "./Avatar";
+import Link from "next/link";
+import { Separator } from "./ui/separator";
+import { Link as LinkIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   id: string;
@@ -36,7 +36,7 @@ const UserLink = memo(({ link }: { link: IUserLink }) => (
   </div>
 ));
 
-UserLink.displayName = 'UserLink';
+UserLink.displayName = "UserLink";
 
 // Memoized card content to prevent re-renders
 const UserCardContent = memo(
@@ -65,7 +65,7 @@ const UserCardContent = memo(
   )
 );
 
-UserCardContent.displayName = 'UserCardContent';
+UserCardContent.displayName = "UserCardContent";
 
 export const UserCard: FC<Props> = memo(
   ({
@@ -85,7 +85,7 @@ export const UserCard: FC<Props> = memo(
               <UserAvatar
                 src={avatarUrl}
                 fallback={name.charAt(0)}
-                className={cn('w-6 h-6', avatarStyles)}
+                className={cn("w-6 h-6", avatarStyles)}
               />
               {showPreviewName && <span className="text-bold">{name}</span>}
             </div>
@@ -105,4 +105,4 @@ export const UserCard: FC<Props> = memo(
   }
 );
 
-UserCard.displayName = 'UserCard';
+UserCard.displayName = "UserCard";

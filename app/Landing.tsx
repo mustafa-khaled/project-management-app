@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
 import AppScreenshot from "@/components/AppScreenshot";
 import { Button } from "@/components/ui/button";
 import { useSupabaseSession } from "@/hooks/useSupabaseSession";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 const features = [
@@ -15,8 +15,6 @@ const features = [
 
 const LandingPage: React.FC = () => {
   const { user, isLoading } = useSupabaseSession();
-
-  if (isLoading) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/95">
@@ -39,7 +37,12 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {user ? (
+            {isLoading ? (
+              <Button size="lg" disabled>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Loading...
+              </Button>
+            ) : user ? (
               <Button size="lg" asChild>
                 <Link href="/projects" className="gap-2">
                   View Projects <ArrowRight className="h-4 w-4" />

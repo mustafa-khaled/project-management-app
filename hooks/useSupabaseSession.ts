@@ -11,10 +11,13 @@ export function useSupabaseSession() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    async function fetchSession() {
+      const { data, error } = await supabase.auth.getSession();
+      setUser(data.session?.user ?? null);
       setIsLoading(false);
-    });
+    }
+
+    fetchSession();
 
     const {
       data: { subscription },

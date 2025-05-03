@@ -5,14 +5,12 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { OAuthSignIn } from "@/components/auth/OAuthSignIn";
 import { auth } from "@/utils/auth";
 import { useToast } from "@/components/ui/use-toast";
 import { getAuthError } from "@/utils/auth-errors";
@@ -108,9 +106,6 @@ export function LoginForm() {
             )}
           </Button>
         </CardContent>
-        <CardFooter>
-          <OAuthSignIn />
-        </CardFooter>
       </form>
     </Card>
   );

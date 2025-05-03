@@ -75,8 +75,6 @@ export const auth = {
     return data;
   },
 
-  signupWithOAuth: async () => {},
-
   // Password Reset Request
   async resetPasswordRequest(email: string) {
     // First check if user exists in our users table and uses email provider
