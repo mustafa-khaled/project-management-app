@@ -38,6 +38,31 @@ export const resetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
+export const profileFormSchema = z.object({
+  name: z
+    .string({
+      required_error: "Name must be provided.",
+    })
+    .max(30, {
+      message: "Username must not be longer than 30 characters.",
+    }),
+  email: z
+    .string({
+      required_error: "Email address must be provided.",
+    })
+    .email(),
+  description: z.string().max(160).optional(),
+  links: z
+    .array(
+      z.object({
+        label: z.string(),
+        url: z.string().url({ message: "Please enter a valid URL." }),
+      })
+    )
+    .optional(),
+});
+
+export type TProfileFormValues = z.infer<typeof profileFormSchema>;
 export type TLoginSchema = z.infer<typeof loginSchema>;
 export type TSignupSchema = z.infer<typeof signupSchema>;
 export type TForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
