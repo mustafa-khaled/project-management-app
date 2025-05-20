@@ -1,32 +1,48 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 const supabase = createClient();
 
 export function useSupabaseSession() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["supabase-user"],
+    queryFn: async (): Promise<User | null> => {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        throw error;
+      }
+
+      return data.session?.user ?? null;
+    },
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    async function fetchSession() {
-      const { data, error } = await supabase.auth.getSession();
-      setUser(data.session?.user ?? null);
-      setIsLoading(false);
-    }
-
-    fetchSession();
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      // Manually update React Query cache when auth state changes
+      queryClient.setQueryData(["supabase-user"], session?.user ?? null);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [queryClient]);
 
-  return { user, isLoading };
+  return {
+    user,
+    isLoading,
+    isError: !!error,
+    error,
+  };
 }
