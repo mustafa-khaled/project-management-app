@@ -2,12 +2,12 @@ import express from "express";
 import cookieSession from "cookie-session";
 import helmet from "helmet";
 import cors from "cors";
-import httpStatus from "http-status";
 import morgan from "morgan";
 import { errorConverter, errorHandler } from "./middlewares/error";
 import { ApiError } from "./utils/ApiError";
 import routes from "./routes";
 import { config } from "./config/app.config";
+import { StatusCodes } from "http-status-codes";
 
 const app = express();
 
@@ -48,7 +48,7 @@ app.use(config.BASE_PATH, routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
-  next(new ApiError(httpStatus.NOT_FOUND, "Not found"));
+  next(new ApiError(StatusCodes.NOT_FOUND, "Not found"));
 });
 
 // convert error to ApiError, if needed
