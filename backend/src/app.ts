@@ -48,7 +48,7 @@ app.use(config.BASE_PATH, routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
-  next(new ApiError(StatusCodes.NOT_FOUND, "Not found"));
+  next(new ApiError("Not found", StatusCodes.NOT_FOUND));
 });
 
 // convert error to ApiError, if needed
