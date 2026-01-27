@@ -3,17 +3,23 @@ import cookieSession from "cookie-session";
 import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
+import passport from "passport";
+import { StatusCodes } from "http-status-codes";
 import { errorConverter, errorHandler } from "./middlewares/error";
 import { ApiError } from "./utils/ApiError";
-import routes from "./routes";
 import { config } from "./config/app.config";
-import { StatusCodes } from "http-status-codes";
+
+import authRoutes from "./routes/auth.route";
+
+import routes from "./routes";
 
 const app = express();
 
 if (process.env.NODE_ENV !== "test") {
   app.use(morgan("dev"));
 }
+
+const BASE_PATH = config.BASE_PATH;
 
 // set security HTTP headers
 app.use(helmet());
@@ -35,6 +41,9 @@ app.use(
   }),
 );
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 // enable cors
 app.use(
   cors({
@@ -44,7 +53,10 @@ app.use(
 );
 
 // v1 api routes
-app.use(config.BASE_PATH, routes);
+app.use(BASE_PATH, routes);
+
+// auth routes
+app.use(`${BASE_PATH}/auth`, authRoutes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {

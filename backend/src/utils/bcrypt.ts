@@ -1,4 +1,4 @@
-const bcrypt = require("bcryptjs");
+import bcrypt from "bcryptjs";
 
 export const hashValues = async (value: string, saltRounds: number = 10) => {
   return await bcrypt.hash(value, saltRounds);

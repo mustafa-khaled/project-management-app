@@ -80,4 +80,4 @@ const taskSchema = new Schema<TaskDocument>(
   },
 );
 
-export const Task = mongoose.model<TaskDocument>("Task", taskSchema);
+export default mongoose.model<TaskDocument>("Task", taskSchema);

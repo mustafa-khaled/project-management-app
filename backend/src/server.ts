@@ -3,6 +3,7 @@ import app from "./app";
 import logger from "./utils/logger";
 import connectDB from "./config/database";
 import { config } from "./config/app.config";
+import "./config/passport.config";
 
 dotenv.config();
 
