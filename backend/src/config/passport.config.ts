@@ -1,10 +1,14 @@
 import passport from "passport";
 import { Request } from "express";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as LocalStrategy } from "passport-local";
 import { config } from "./app.config";
 import { NotFoundException } from "@/utils/ApiError";
 import { ProviderEnum } from "@/enums/account-provider.enum";
-import { loginOrCreateAccountService } from "@/services/auth.service";
+import {
+  loginOrCreateAccountService,
+  verifyUserService,
+} from "@/services/auth.service";
 
 passport.use(
   new GoogleStrategy(
@@ -41,10 +45,42 @@ passport.use(
   ),
 );
 
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+      session: true,
+    },
+    async (email, password, done) => {
+      try {
+        const user = await verifyUserService({ email, password });
+
+        return done(null, user as any);
+      } catch (err: any) {
+        return done(err, false, {
+          message: err?.message,
+        });
+      }
+    },
+  ),
+);
+
 passport.serializeUser((user: any, done) => {
-  done(null, user);
+  done(null, user._id || user.id);
 });
 
-passport.deserializeUser((user: any, done) => {
-  done(null, user);
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    const UserModel = (await import("@/models/user.model")).default;
+    const user = await UserModel.findById(id);
+
+    if (!user) {
+      return done(new NotFoundException("User not found"), null);
+    }
+
+    done(null, user as any);
+  } catch (err) {
+    done(err, null);
+  }
 });

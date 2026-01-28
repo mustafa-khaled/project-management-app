@@ -1,9 +1,23 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes, getReasonPhrase } from "http-status-codes";
-import logger from "../utils/logger";
-import { ApiError } from "../utils/ApiError";
+import { ZodError } from "zod";
 import { config } from "@/config/app.config";
 import { ErrorCodeEnum } from "@/enums/error-code.enum";
+import { ApiError } from "../utils/ApiError";
+import logger from "../utils/logger";
+
+const formateZodError = (res: Response, error: ZodError) => {
+  const errors = error?.issues?.map((err) => ({
+    field: err.path.join("."),
+    message: err.message,
+  }));
+
+  return res.status(StatusCodes.BAD_REQUEST).json({
+    statusCode: StatusCodes.BAD_REQUEST,
+    message: "Validation Error",
+    errors,
+  });
+};
 
 export const errorConverter = (
   err: unknown,
@@ -11,6 +25,11 @@ export const errorConverter = (
   res: Response,
   next: NextFunction,
 ) => {
+  // ✅ DO NOT TOUCH ZOD ERRORS
+  if (err instanceof ZodError) {
+    return next(err);
+  }
+
   let error = err;
 
   if (!(error instanceof ApiError)) {
@@ -44,6 +63,10 @@ export const errorHandler = (
     statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
     message = getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR);
     errorCode = ErrorCodeEnum.INTERNAL_SERVER_ERROR;
+  }
+
+  if (err instanceof ZodError) {
+    return formateZodError(res, err);
   }
 
   const response = {

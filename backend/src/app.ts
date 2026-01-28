@@ -1,5 +1,5 @@
 import express from "express";
-import cookieSession from "cookie-session";
+import session from "express-session";
 import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
@@ -10,7 +10,6 @@ import { ApiError } from "./utils/ApiError";
 import { config } from "./config/app.config";
 
 import authRoutes from "./routes/auth.route";
-
 import routes from "./routes";
 
 const app = express();
@@ -31,13 +30,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
-  cookieSession({
-    name: "session",
-    keys: [config.SESSION_SECRET],
-    maxAge: 24 * 60 * 60 * 100,
-    secure: config.NODE_ENV === "production",
-    httpOnly: true,
-    sameSite: "lax",
+  session({
+    secret: config.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secure: config.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
+    },
   }),
 );
 
