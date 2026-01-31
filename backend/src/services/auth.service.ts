@@ -160,6 +160,7 @@ export const registerUserService = async (body: RegisterServiceData) => {
     await newUser.save({ session });
 
     await session.commitTransaction();
+
     return { userId: newUser._id, workspaceId: workspace._id };
   } catch (err) {
     await session.abortTransaction();
@@ -180,16 +181,41 @@ export const verifyUserService = async ({
     throw new NotFoundException("Invalid email or password");
   }
 
-  const user = await UserModel.findById(account.userId).select("+password");
+  const user = await UserModel.findById(account.userId).select(
+    "+password +failedLoginAttempts +lockUntil",
+  );
 
   if (!user) {
     throw new NotFoundException("User not found");
   }
 
+  // Check if account is locked
+  if (user.lockUntil && user.lockUntil > new Date()) {
+    throw new BadRequestException(
+      `Account is temporarily locked. Try again after ${user.lockUntil.toLocaleTimeString()}`,
+    );
+  }
+
   const isPasswordValid = await user.comparePassword(password);
 
   if (!isPasswordValid) {
+    // Increment failed attempts
+    user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+
+    if (user.failedLoginAttempts >= 5) {
+      user.lockUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes lockout
+      user.failedLoginAttempts = 0;
+    }
+
+    await user.save();
     throw new UnauthorizedException("Invalid email or password");
+  }
+
+  // Reset failed attempts on successful login
+  if (user.failedLoginAttempts > 0 || user.lockUntil) {
+    user.failedLoginAttempts = 0;
+    user.lockUntil = undefined;
+    await user.save();
   }
 
   return user.omitPassword();

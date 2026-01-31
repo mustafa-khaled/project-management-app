@@ -7,6 +7,8 @@ export interface UserDocument extends Document {
   password?: string;
   profilePicture?: string | null;
   isActive: boolean;
+  failedLoginAttempts: number;
+  lockUntil?: Date;
   lastLoginAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -57,6 +59,15 @@ const userSchema = new Schema<UserDocument>(
       required: false,
       select: false,
     },
+    failedLoginAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
+    lockUntil: {
+      type: Date,
+      select: false,
+    },
   },
   {
     timestamps: true,
@@ -79,7 +90,8 @@ userSchema.methods.omitPassword = function (): Omit<UserDocument, "password"> {
 userSchema.methods.comparePassword = async function (
   password: string,
 ): Promise<boolean> {
-  return await compareValues(password, this.password!);
+  if (!this.password) return false;
+  return await compareValues(password, this.password);
 };
 
 export default mongoose.model<UserDocument>("User", userSchema);

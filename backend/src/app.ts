@@ -4,6 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 import passport from "passport";
+import MongoStore from "connect-mongo";
 import { StatusCodes } from "http-status-codes";
 import { errorConverter, errorHandler } from "./middlewares/error";
 import { ApiError } from "./utils/ApiError";
@@ -11,6 +12,8 @@ import { config } from "./config/app.config";
 
 import authRoutes from "./routes/auth.route";
 import routes from "./routes";
+
+import { globalRateLimiter } from "./middlewares/rate-limit.middleware";
 
 const app = express();
 
@@ -23,6 +26,9 @@ const BASE_PATH = config.BASE_PATH;
 // set security HTTP headers
 app.use(helmet());
 
+// Apply global rate limiting
+app.use(globalRateLimiter);
+
 // parse json request body
 app.use(express.json());
 
@@ -34,8 +40,11 @@ app.use(
     secret: config.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: config.DATABASE_URL,
+    }),
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: parseInt(config.SESSION_EXPIRES_IN) || 24 * 60 * 60 * 1000,
       secure: config.NODE_ENV === "production",
       httpOnly: true,
       sameSite: "lax",

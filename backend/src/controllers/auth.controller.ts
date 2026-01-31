@@ -72,3 +72,36 @@ export const loginUserController = catchAsync(
     )(req, res, next);
   },
 );
+
+export const logoutController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    req.logOut((err) => {
+      if (err) {
+        console.log("Logout error:", err);
+
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: "Logout failed.",
+        });
+      }
+
+      req.session?.destroy((err) => {
+        if (err) {
+          console.log("Session destruction error:", err);
+        }
+      });
+
+      return res.status(StatusCodes.OK).json({
+        message: "user logged out successfully.",
+      });
+    });
+  },
+);
+
+export const getCurrentUserController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    return res.status(StatusCodes.OK).json({
+      message: "User data retrieved successfully.",
+      user: req.user,
+    });
+  },
+);
