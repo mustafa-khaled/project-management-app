@@ -73,10 +73,12 @@ passport.serializeUser((user: any, done) => {
 passport.deserializeUser(async (id: string, done) => {
   try {
     const UserModel = (await import("@/models/user.model")).default;
-    const user = await UserModel.findById(id);
+    const user = await UserModel.findById(id).select(
+      "+currentWorkspace +profilePicture +isActive",
+    );
 
     if (!user) {
-      return done(new NotFoundException("User not found"), null);
+      return done(null, false);
     }
 
     done(null, user as any);

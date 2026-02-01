@@ -9,12 +9,14 @@ import {
   registerUserController,
 } from "@/controllers/auth.controller";
 import { isAuthenticated } from "@/middlewares/auth.middleware";
+import { validate } from "@/middlewares/validation.middleware";
+import { loginSchema, registerSchema } from "@/validation/auth.validation";
 
 const failedUrl = `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`;
 const router = Router();
 
-router.post("/register", registerUserController);
-router.post("/login", loginUserController);
+router.post("/register", validate(registerSchema), registerUserController);
+router.post("/login", validate(loginSchema), loginUserController);
 router.post("/logout", logoutController);
 router.get("/me", isAuthenticated, getCurrentUserController);
 

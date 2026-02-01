@@ -1,13 +1,14 @@
 import { config } from "@/config/app.config";
 import { catchAsync } from "@/utils/catchAsync";
 import { Request, Response, NextFunction } from "express";
-import { loginSchema, registerSchema } from "@/validation/auth.validation";
 import { StatusCodes } from "http-status-codes";
 import {
+  getUserByIdService,
+  getUserWorkspacesService,
   registerUserService,
-  verifyUserService,
 } from "@/services/auth.service";
 import passport from "passport";
+import { UnauthorizedException } from "@/utils/ApiError";
 
 export const googleLoginCallback = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -27,14 +28,14 @@ export const googleLoginCallback = catchAsync(
 
 export const registerUserController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const body = registerSchema.parse({
-      ...req.body,
-    });
-
-    await registerUserService(body);
+    const { userId, workspaceId } = await registerUserService(req.body);
 
     return res.status(StatusCodes.CREATED).json({
-      message: "user created successfully.",
+      message: "User created successfully.",
+      data: {
+        userId,
+        workspaceId,
+      },
     });
   },
 );
@@ -64,7 +65,7 @@ export const loginUserController = catchAsync(
           }
 
           return res.status(StatusCodes.OK).json({
-            message: "user logged in successfully.",
+            message: "Logged in successfully",
             user,
           });
         });
@@ -75,23 +76,18 @@ export const loginUserController = catchAsync(
 
 export const logoutController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    req.logOut((err) => {
+    req.logout((err) => {
       if (err) {
-        console.log("Logout error:", err);
-
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          message: "Logout failed.",
-        });
+        return next(err);
       }
-
-      req.session?.destroy((err) => {
+      req.session.destroy((err) => {
         if (err) {
-          console.log("Session destruction error:", err);
+          return next(err);
         }
-      });
-
-      return res.status(StatusCodes.OK).json({
-        message: "user logged out successfully.",
+        res.clearCookie("connect.sid");
+        return res.status(StatusCodes.OK).json({
+          message: "Logged out successfully",
+        });
       });
     });
   },
@@ -99,9 +95,17 @@ export const logoutController = catchAsync(
 
 export const getCurrentUserController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      throw new UnauthorizedException("Not authenticated");
+    }
+
+    const userId = (req.user as any)._id;
+
+    const user = await getUserByIdService(userId);
+
     return res.status(StatusCodes.OK).json({
       message: "User data retrieved successfully.",
-      user: req.user,
+      user,
     });
   },
 );

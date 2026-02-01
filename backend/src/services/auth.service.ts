@@ -7,6 +7,7 @@ import UserModel from "@/models/user.model";
 import WorkspaceModel from "@/models/workspace.model";
 import {
   BadRequestException,
+  HttpException,
   NotFoundException,
   UnauthorizedException,
 } from "@/utils/ApiError";
@@ -43,25 +44,33 @@ export const loginOrCreateAccountService = async (
     let user = await UserModel.findOne({ email }).session(session);
 
     if (!user) {
-      // 1): Create new user if ir doesn't exist
+      // 1): Create new user if it doesn't exist
       user = new UserModel({
         name: displayName,
         email,
         profilePicture: picture,
-        provider,
-        providerId,
       });
 
       await user.save({ session });
-      const account = new AccountModel({
+    }
+
+    // Check if account for this provider exists
+    let account = await AccountModel.findOne({
+      userId: user._id,
+      provider,
+    }).session(session);
+
+    if (!account) {
+      account = new AccountModel({
         userId: user._id,
         provider,
         providerId,
       });
-
       await account.save({ session });
+    }
 
-      // 2): Create new workspace for the new user
+    // 2): If user doesn't have a current workspace, create one
+    if (!user.currentWorkspace) {
       const workspace = new WorkspaceModel({
         name: "My workspace",
         description: `Workspace created for ${user.name}`,
@@ -219,4 +228,24 @@ export const verifyUserService = async ({
   }
 
   return user.omitPassword();
+};
+
+export const getUserByIdService = async (userId: string) => {
+  const user = await UserModel.findById(userId);
+
+  if (!user) {
+    throw new NotFoundException("User not found");
+  }
+
+  return user;
+};
+
+export const getUserWorkspacesService = async (userId: string) => {
+  const workspaces = await MemberModel.find({
+    userId,
+  } as any)
+    .populate("workspaceId")
+    .select("workspaceId joinedAt");
+
+  return workspaces.map((m) => m.workspaceId);
 };

@@ -71,6 +71,12 @@ const userSchema = new Schema<UserDocument>(
   },
   {
     timestamps: true,
+    toJSON: {
+      transform(doc, ret) {
+        delete ret.password;
+        return ret;
+      },
+    },
   },
 );
 

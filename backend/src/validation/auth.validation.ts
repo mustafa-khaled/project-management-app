@@ -7,7 +7,10 @@ export const emailSchema = z
   .min(1)
   .max(255);
 
-export const passwordSchema = z.string().trim().min(4);
+export const passwordSchema = z
+  .string()
+  .trim()
+  .min(6, "Password must be at least 6 characters");
 
 export const registerSchema = z.object({
   name: z.string().trim().min(1).max(255),
