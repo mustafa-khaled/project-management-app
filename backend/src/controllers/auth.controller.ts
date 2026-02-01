@@ -2,13 +2,8 @@ import { config } from "@/config/app.config";
 import { catchAsync } from "@/utils/catchAsync";
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
-import {
-  getUserByIdService,
-  getUserWorkspacesService,
-  registerUserService,
-} from "@/services/auth.service";
+import { registerUserService } from "@/services/auth.service";
 import passport from "passport";
-import { UnauthorizedException } from "@/utils/ApiError";
 
 export const googleLoginCallback = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -89,23 +84,6 @@ export const logoutController = catchAsync(
           message: "Logged out successfully",
         });
       });
-    });
-  },
-);
-
-export const getCurrentUserController = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      throw new UnauthorizedException("Not authenticated");
-    }
-
-    const userId = (req.user as any)._id;
-
-    const user = await getUserByIdService(userId);
-
-    return res.status(StatusCodes.OK).json({
-      message: "User data retrieved successfully.",
-      user,
     });
   },
 );

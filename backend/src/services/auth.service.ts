@@ -229,23 +229,3 @@ export const verifyUserService = async ({
 
   return user.omitPassword();
 };
-
-export const getUserByIdService = async (userId: string) => {
-  const user = await UserModel.findById(userId);
-
-  if (!user) {
-    throw new NotFoundException("User not found");
-  }
-
-  return user;
-};
-
-export const getUserWorkspacesService = async (userId: string) => {
-  const workspaces = await MemberModel.find({
-    userId,
-  } as any)
-    .populate("workspaceId")
-    .select("workspaceId joinedAt");
-
-  return workspaces.map((m) => m.workspaceId);
-};

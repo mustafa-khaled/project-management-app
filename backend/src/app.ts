@@ -11,7 +11,7 @@ import { ApiError } from "./utils/ApiError";
 import { config } from "./config/app.config";
 
 import authRoutes from "./routes/auth.route";
-import routes from "./routes";
+import userRoutes from "./routes/user.route";
 
 import { globalRateLimiter } from "./middlewares/rate-limit.middleware";
 
@@ -63,11 +63,9 @@ app.use(
   }),
 );
 
-// v1 api routes
-app.use(BASE_PATH, routes);
-
 // auth routes
 app.use(`${BASE_PATH}/auth`, authRoutes);
+app.use(`${BASE_PATH}/user`, userRoutes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {

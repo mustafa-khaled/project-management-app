@@ -1,9 +1,10 @@
-import { UserDocument } from "@/models/user.model";
-
 declare global {
   namespace Express {
-    interface User extends UserDocument {
-      _id?: string;
+    interface User extends import("../models/user.model").UserDocument {
+      id?: string;
+      _id?: any;
     }
   }
 }
+
+export {};

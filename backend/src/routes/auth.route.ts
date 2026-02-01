@@ -2,7 +2,6 @@ import { Router } from "express";
 import passport from "passport";
 import { config } from "@/config/app.config";
 import {
-  getCurrentUserController,
   googleLoginCallback,
   loginUserController,
   logoutController,
@@ -18,7 +17,6 @@ const router = Router();
 router.post("/register", validate(registerSchema), registerUserController);
 router.post("/login", validate(loginSchema), loginUserController);
 router.post("/logout", logoutController);
-router.get("/me", isAuthenticated, getCurrentUserController);
 
 router.get(
   "/google",
