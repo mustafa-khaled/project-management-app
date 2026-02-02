@@ -92,7 +92,7 @@ export const loginOrCreateAccountService = async (
       const member = new MemberModel({
         workspaceId: workspace._id,
         userId: user._id,
-        role: ownerRole._id,
+        roleId: ownerRole._id,
       });
 
       await member.save({ session });
@@ -160,7 +160,7 @@ export const registerUserService = async (body: RegisterServiceData) => {
     const member = new MemberModel({
       workspaceId: workspace._id,
       userId: newUser._id,
-      role: ownerRole._id,
+      roleId: ownerRole._id,
     });
 
     await member.save({ session });

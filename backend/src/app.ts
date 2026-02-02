@@ -12,8 +12,10 @@ import { config } from "./config/app.config";
 
 import authRoutes from "./routes/auth.route";
 import userRoutes from "./routes/user.route";
+import workspaceRoutes from "./routes/workspace.route";
 
 import { globalRateLimiter } from "./middlewares/rate-limit.middleware";
+import { isAuthenticated } from "./middlewares/auth.middleware";
 
 const app = express();
 
@@ -65,7 +67,8 @@ app.use(
 
 // auth routes
 app.use(`${BASE_PATH}/auth`, authRoutes);
-app.use(`${BASE_PATH}/user`, userRoutes);
+app.use(`${BASE_PATH}/user`, isAuthenticated, userRoutes);
+app.use(`${BASE_PATH}/workspace`, isAuthenticated, workspaceRoutes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
