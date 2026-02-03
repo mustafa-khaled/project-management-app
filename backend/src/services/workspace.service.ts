@@ -1,10 +1,10 @@
+import mongoose from "mongoose";
 import { RoleEnum } from "@/enums/role.enum";
 import { NotFoundException } from "@/utils/ApiError";
 import RoleModel from "@/models/roles-permission.model";
 import UserModel from "@/models/user.model";
-import workspaceModel from "@/models/workspace.model";
+import WorkspaceModel from "@/models/workspace.model";
 import MemberModel from "@/models/member.model";
-import mongoose from "mongoose";
 
 export const createWorkspaceService = async (
   userId: string,
@@ -27,7 +27,7 @@ export const createWorkspaceService = async (
     throw new NotFoundException("Owner role not found");
   }
 
-  const workspace = await workspaceModel.create({
+  const workspace = await WorkspaceModel.create({
     name,
     description,
     owner: user._id,
@@ -59,4 +59,37 @@ export const getAllWorkspacesUserIsMemberService = async (userId: string) => {
   const workspaces = memberships.map((membership) => membership.workspaceId);
 
   return { workspaces };
+};
+
+export const getWorkspaceByIdService = async (workspaceId: string) => {
+  const workspace = await WorkspaceModel.findById(workspaceId);
+
+  if (!workspace) {
+    throw new NotFoundException("Workspace not found");
+  }
+
+  const members = await MemberModel.find({
+    workspaceId: new mongoose.Types.ObjectId(workspaceId),
+  }).populate("roleId");
+
+  return {
+    workspace: {
+      ...workspace.toObject(),
+      members,
+    },
+  };
+};
+
+export const getWorkspaceMembersService = async (workspaceId: string) => {
+  const members = await MemberModel.find({
+    workspaceId: new mongoose.Types.ObjectId(workspaceId),
+  })
+    .populate("userId", "name email profilePicture")
+    .populate("roleId", "name");
+
+  const roles = await RoleModel.find({}, { name: 1, _id: 1 })
+    .select("-permissions")
+    .lean();
+
+  return { members, roles };
 };
