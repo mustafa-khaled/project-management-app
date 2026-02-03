@@ -5,6 +5,8 @@ import RoleModel from "@/models/roles-permission.model";
 import UserModel from "@/models/user.model";
 import WorkspaceModel from "@/models/workspace.model";
 import MemberModel from "@/models/member.model";
+import TaskModel from "@/models/task.model";
+import { TaskStatusEnum } from "@/enums/task.enum";
 
 export const createWorkspaceService = async (
   userId: string,
@@ -92,4 +94,31 @@ export const getWorkspaceMembersService = async (workspaceId: string) => {
     .lean();
 
   return { members, roles };
+};
+
+export const getWorkspaceAnalyticsService = async (workspaceId: string) => {
+  const currentDate = new Date();
+
+  const totalTask = await TaskModel.countDocuments({
+    workspaceId,
+  });
+
+  const overDueTask = await TaskModel.countDocuments({
+    workspaceId,
+    dueDate: { $lt: currentDate },
+    status: { $ne: TaskStatusEnum.COMPLETED },
+  });
+
+  const completedTask = await TaskModel.countDocuments({
+    workspaceId,
+    status: TaskStatusEnum.COMPLETED,
+  });
+
+  const analytics = {
+    totalTask,
+    overDueTask,
+    completedTask,
+  };
+
+  return { analytics };
 };

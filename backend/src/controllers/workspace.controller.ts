@@ -1,6 +1,7 @@
 import {
   createWorkspaceService,
   getAllWorkspacesUserIsMemberService,
+  getWorkspaceAnalyticsService,
   getWorkspaceByIdService,
   getWorkspaceMembersService,
 } from "@/services/workspace.service";
@@ -82,6 +83,26 @@ export const getWorkspaceMembersController = catchAsync(
       success: true,
       message: "Workspace members fetched successfully",
       data: { members, roles },
+    });
+  },
+);
+
+export const getWorkspaceAnalyticsController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const workspaceId = workspaceIdSchema.parse(req.params.id);
+    const user = req.user as UserDocument;
+    const userId = user._id.toString();
+
+    const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+
+    roleGuard(role, [PermissionEnum.VIEW_ONLY]);
+
+    const { analytics } = await getWorkspaceAnalyticsService(workspaceId);
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Workspace analytics fetched successfully",
+      data: { analytics },
     });
   },
 );
